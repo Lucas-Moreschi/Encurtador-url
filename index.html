@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Encurtador de URL</title>
+  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI&display=swap" rel="stylesheet">
+  <style>
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #f5f7fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.shortener-box {
+  background: white;
+  padding: 2em;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 500px;
+  text-align: center;
+}
+
+h1 {
+  color: #2a2f4a;
+  margin-bottom: 1em;
+}
+
+input[type="url"] {
+  width: 80%;
+  padding: 1em;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  margin-bottom: 1em;
+  font-size: 1em;
+}
+
+button {
+  background-color: #e03e2f;
+  color: white;
+  padding: 1em 2em;
+  border: none;
+  border-radius: 10px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #c73226;
+}
+
+.result {
+  margin-top: 1em;
+  font-weight: bold;
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.result.show {
+  animation: fadeInUp 0.5s forwards;
+}
+
+.button-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.5em;
+}
+
+#copy-button {
+  background-color: #ffbb33;
+  color: #2a2f4a;
+  padding: 0.7em 1.5em;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.95em;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-align: center;
+}
+
+#copy-button:hover {
+  background-color: #e0a12f;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+  </style>
+</head>
+<body>
+  
+  <div class="shortener-box">
+    <h1>Encurtador de URL</h1>
+    <input type="url" id="url-field" placeholder="Cole sua URL aqui" required />
+    <br />
+    <button id="shorten-button">Encurtar</button>
+    <div class="result" id="result-box"></div>
+    <div class="button-wrapper">
+      <button id="copy-button" style="display: none;">📋 Copiar URL</button>
+    </div>
+  </div>
+    
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script>
+  $('#shorten-button').on('click', function () {
+    const url = $('#url-field').val();
+
+    if (!url) {
+     alert('Digite uma URL válida!');
+     return;
+    }
+
+    $.ajax({
+      url: 'encurtador.php',
+      method: 'POST',
+      data: { url_original: url },
+     success: function (data) {
+       $('#result-box')
+         .html(`🔗 URL Encurtada: <a href="${data.url_encurtada}" target="_blank">${data.url_encurtada}</a>`)
+          .addClass('show');
+      
+        $('#copy-button')
+          .fadeIn()
+          .off('click')
+          .on('click', function () {
+            navigator.clipboard.writeText(data.url_encurtada).then(() => {
+              $(this).text('✅ Copiado!').css('background-color', '#28a745');
+              setTimeout(() => {
+                $(this).text('📋 Copiar URL').css('background-color', '#ffbb33');
+              }, 2000);
+            });
+         });
+     },
+     error: function () {
+        $('#result-box')
+         .html('❌ Ocorreu um erro ao encurtar a URL.')
+          .addClass('show');
+       $('#copy-button').fadeOut();
+      }
+    });
+  });
+  </script>
+</body>
+</html>
